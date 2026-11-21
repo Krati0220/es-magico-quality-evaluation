@@ -1,7 +1,8 @@
 """Offline metrics/reporting. Analysis makes no model requests."""
+import html
+import json
 import random
 import statistics
-import html
 from pathlib import Path
 
 from .core import DIMENSIONS, check_summary, read_json, semantic_pass, write_json
@@ -55,12 +56,11 @@ def validate_human_label(label):
     return label
 
 
-def human_metrics(directory, rows, inputs):
-    directory = Path(directory)
-    if not (directory / "human_review.json").exists():
+def compute_human_metrics(review_doc, review_key, rows, inputs):
+    if not review_doc or not review_key:
         return {"status": "pending", "validation": agreement([]), "calibration": agreement([]), "disagreements": []}
-    key = {x["review_id"]: x for x in read_json(directory / "human_review_key.json")}
-    items = read_json(directory / "human_review.json")["items"]
+    key = {x["review_id"]: x for x in review_key}
+    items = review_doc["items"]
     if len({x["review_id"] for x in items}) != len(items) or {x["review_id"] for x in items} != set(key):
         raise ValueError("Human review IDs changed or duplicated.")
     rows_by_id = {x["job_id"]: x for x in rows}
@@ -103,11 +103,74 @@ def human_metrics(directory, rows, inputs):
     return result
 
 
-def analyze(directory):
+def human_metrics(directory, rows, inputs):
     directory = Path(directory)
-    manifest = read_json(directory / "manifest.json")
+    if not (directory / "human_review.json").exists():
+        return {"status": "pending", "validation": agreement([]), "calibration": agreement([]), "disagreements": []}
+    return compute_human_metrics(
+        read_json(directory / "human_review.json"),
+        read_json(directory / "human_review_key.json"),
+        rows,
+        inputs,
+    )
+
+
+def render_report(metrics, rows):
+    baseline, candidate = metrics.get("baseline_version", "v1"), metrics.get("candidate_version", "v2")
+    interval = metrics["paired_comparison"]
+    lines = ["# Regression report", "", f"**Recommendation: {metrics['recommendation']}.**", ""]
+    lines += ["- " + r for r in metrics["decision_reasons"]]
+    if not metrics["decision_reasons"]:
+        lines.append("Declared gates passed on this small selected sample. Confirm the critical examples manually and use a monitored rollout; this is not proof of production-wide safety.")
+    lines += ["", "## Comparison", "", "Combined rate uses all planned outputs as its denominator; operationally missing outputs remain separately counted, not semantic failures.", "",
+              "| Version | Planned | Generated | Judged | Deterministic passes/generated | Semantic passes/judged | Combined passes/planned | Critical outputs/judged |",
+              "|---|---:|---:|---:|---:|---:|---:|---:|"]
+    for v, m in metrics["versions"].items():
+        lines.append(f"| {v} | {m['planned']} | {m['generated']} | {m['judged']} | {m['deterministic_passes']}/{m['generated']} | {m['semantic_passes']}/{m['judged']} | {m['combined_passes']}/{m['planned']} | {m['critical_outputs']}/{m['judged']} |")
+    cost_note = f"Estimated monetary cost: ${metrics['cost_usd']:.4f} USD." if metrics.get("cost_usd") is not None else "Monetary cost is unknown; token usage, when supplied by the provider, is in metrics.json."
+    lines += ["", f"Request attempts: {metrics['request_attempts']}; operational error attempts: {metrics['operational_error_attempts']}. {cost_note}", "",
+              "Mean dimension scores: " + str({v: m["mean_scores"] for v, m in metrics["versions"].items()}), "", "## Confidence and repeated runs", ""]
+    if interval:
+        lines.append(f"{candidate} minus {baseline} combined-pass difference: {interval['mean_v2_minus_v1']:+.3f}; 95% interval [{interval['ci95_low']:+.3f}, {interval['ci95_high']:+.3f}], over {interval['paired_cases']} fully evaluated paired cases. Method: {interval['method']}, {interval['iterations']} draws, seed {interval['seed']}.")
+    else:
+        lines.append("No complete paired cases; no comparison interval is available.")
+    variable = {v: sum(x["variable_across_repeats"][v] for x in metrics["per_case"]) for v in (baseline, candidate)}
+    lines += [f"Cases whose combined pass/fail changed across repeats: {variable}.", "", "## Judge validation", "",
+              "Calibration: " + str(metrics["human"]["calibration"]), "", "Held-out validation: " + str(metrics["human"]["validation"]), "",
+              f"Human-review status: {metrics['human']['status']}. Agreement denominators include only labeled outputs with a valid judge response. Kappa is undefined when agreement marginals are degenerate.", "",
+              f"Judge/summariser share endpoint and model: {metrics['same_model_and_endpoint']}. Shared model biases can inflate apparent agreement; blinding does not remove them.", "", "## Evidence examples", ""]
+    examples = sorted(metrics["per_case"], key=lambda x: x["delta"])
+    selected = (examples[:1] + examples[-1:]) if examples else []
+    seen = set()
+    for case in selected:
+        if case["case_id"] in seen:
+            continue
+        seen.add(case["case_id"])
+        lines.append(f"Case {case['case_id']}: {baseline} rate {case['rates'][baseline]:.3f}, {candidate} {case['rates'][candidate]:.3f}.")
+        for v in (baseline, candidate):
+            row = next(x for x in rows if x["case_id"] == case["case_id"] and x["version"] == v)
+            # Escape syntax so source-controlled strings render as evidence, not active Markdown.
+            def escaped(value):
+                value = html.escape(json.dumps(value, ensure_ascii=False))
+                for char in "\\`*_[]()":
+                    value = value.replace(char, "\\" + char)
+                return value
+            lines += ["", f"- {v}, job {row['job_id']}: " + escaped(row["summary"]),
+                      "  Judge reasons: " + escaped(row["judgment"]["reasons"])]
+    if not selected:
+        lines.append("No evaluated examples available. Do not substitute fixture summaries.")
+    lines += ["", "## Limits and next steps", "", "This purposive set is not a random sample of production traffic. Repeats share conversations; intervals resample whole cases and cannot repair selection bias. Small risk slices and human samples limit confidence. No observed critical error does not establish zero risk. Inspect per-case and risk-slice evidence in metrics.json and disagreements under human.disagreements. Complete missing data/review and investigate critical errors before reconsidering release.", ""]
+    return "\n".join(lines)
+
+
+def write_report(path, metrics, rows):
+    Path(path).write_text(render_report(metrics, rows), encoding="utf-8")
+
+
+def analyze_data(manifest, events, review_doc=None, review_key=None):
+    """Pure in-memory analysis usable by both the CLI and web API."""
     inputs, config = manifest["inputs"], manifest["inputs"]["config"]
-    events = read_events(directory / "events.jsonl")
+    baseline, candidate = tuple(manifest.get("versions", ("v1", "v2")))
     if any(e["run_fingerprint"] != manifest["fingerprint"] for e in events):
         raise ValueError("Mixed run fingerprints detected.")
     latest = {(x["job_id"], x["stage"]): x for x in events if x["status"] == "ok"}
@@ -122,7 +185,7 @@ def analyze(directory):
                      "checks": checks, "judgment": judgment, "semantic_pass": sp,
                      "combined_pass": checks["passed"] and sp if checks is not None and sp is not None else None})
     versions = {}
-    for version in ("v1", "v2"):
+    for version in (baseline, candidate):
         selected = [x for x in rows if x["version"] == version]
         generated = [x for x in selected if x["checks"] is not None]
         judged = [x for x in selected if x["judgment"] is not None]
@@ -136,27 +199,27 @@ def analyze(directory):
                              "mean_scores": {d: statistics.mean(x["judgment"][d] for x in judged) if judged else None for d in DIMENSIONS}}
     case_comparisons = []
     for case in inputs["cases"]:
-        groups = {v: [x for x in rows if x["case_id"] == case["id"] and x["version"] == v] for v in ("v1", "v2")}
+        groups = {v: [x for x in rows if x["case_id"] == case["id"] and x["version"] == v] for v in (baseline, candidate)}
         if not all(len(g) == config["repeats"] and all(x["combined_pass"] is not None for x in g) for g in groups.values()):
             continue
         rates = {v: statistics.mean(int(x["combined_pass"]) for x in g) for v, g in groups.items()}
         case_comparisons.append({"case_id": case["id"], "tags": case["tags"], "rates": rates,
-                                 "delta": rates["v2"] - rates["v1"],
+                                 "delta": rates[candidate] - rates[baseline],
                                  "variable_across_repeats": {v: len({x["combined_pass"] for x in g}) > 1 for v, g in groups.items()}})
     interval = paired_interval([x["delta"] for x in case_comparisons], config["schedule_seed"])
-    human = human_metrics(directory, rows, inputs)
+    human = compute_human_metrics(review_doc, review_key, rows, inputs)
     release = config["release"]
     reasons = []
-    if manifest["scope"] != "full" or len(case_comparisons) != 30:
-        reasons.append("Full 30-case repeated comparison is incomplete.")
+    if manifest["scope"] != "full" or len(case_comparisons) != len(inputs["cases"]):
+        reasons.append(f"Full {len(inputs['cases'])}-case repeated comparison is incomplete.")
     if any(v["generated"] != v["planned"] or v["judged"] != v["planned"] for v in versions.values()):
         reasons.append("Generation or judge results are missing.")
-    if versions["v2"]["critical_outputs"]:
-        reasons.append("Observed critical errors in v2.")
-    if versions["v2"]["deterministic_critical_outputs"]:
-        reasons.append("Deterministic privacy/safety critical checks failed in v2.")
-    if (versions["v2"]["combined_rate_over_planned"] or 0) < release["minimum_combined_pass_rate"]:
-        reasons.append("v2 does not meet the declared combined-pass threshold.")
+    if versions[candidate]["critical_outputs"]:
+        reasons.append(f"Observed critical errors in {candidate}.")
+    if versions[candidate]["deterministic_critical_outputs"]:
+        reasons.append(f"Deterministic privacy/safety critical checks failed in {candidate}.")
+    if (versions[candidate]["combined_rate_over_planned"] or 0) < release["minimum_combined_pass_rate"]:
+        reasons.append(f"{candidate} does not meet the declared combined-pass threshold.")
     if interval is None or interval["ci95_low"] < -release["noninferiority_margin"]:
         reasons.append("Evidence does not establish the declared noninferiority margin.")
     validation = human["validation"]
@@ -171,66 +234,34 @@ def analyze(directory):
         reasons.append("Judge dimension error exceeds the declared validation tolerance.")
     tags = sorted({tag for c in inputs["cases"] for tag in c["tags"]})
     slices = {tag: {v: {"n": len(g := [x for x in rows if x["version"] == v and x["case_id"] in {c["id"] for c in inputs["cases"] if tag in c["tags"]}]),
-                          "combined_passes": sum(x["combined_pass"] is True for x in g)} for v in ("v1", "v2")} for tag in tags}
+                          "combined_passes": sum(x["combined_pass"] is True for x in g)} for v in (baseline, candidate)} for tag in tags}
     usage = {}
+    costs = []
     for e in events:
         for key, val in (e.get("usage") or {}).items():
             if isinstance(val, (int, float)) and not isinstance(val, bool):
                 usage[key] = usage.get(key, 0) + val
-    metrics = {"run_fingerprint": manifest["fingerprint"], "scope": manifest["scope"], "versions": versions,
+        if isinstance(e.get("cost_usd"), (int, float)) and not isinstance(e.get("cost_usd"), bool):
+            costs.append(e["cost_usd"])
+    total_cost = round(sum(costs), 6) if costs else None
+    metrics = {"run_fingerprint": manifest["fingerprint"], "scope": manifest["scope"],
+               "baseline_version": baseline, "candidate_version": candidate, "versions": versions,
                "paired_comparison": interval, "per_case": case_comparisons, "risk_slices": slices,
                "human": human, "operational_error_attempts": sum(x["status"] == "error" for x in events),
-               "request_attempts": len(events), "reported_usage_all_attempts": usage, "cost_usd": None,
+               "request_attempts": len(events), "reported_usage_all_attempts": usage, "cost_usd": total_cost,
                "recommendation": "HOLD" if reasons else "CONDITIONAL SHIP", "decision_reasons": reasons,
                "models": manifest["clients"], "same_model_and_endpoint": manifest["clients"]["generate"] == manifest["clients"]["judge"]}
+    return metrics, rows, render_report(metrics, rows)
+
+
+def analyze(directory):
+    directory = Path(directory)
+    manifest = read_json(directory / "manifest.json")
+    events = read_events(directory / "events.jsonl")
+    review_doc = read_json(directory / "human_review.json") if (directory / "human_review.json").exists() else None
+    review_key = read_json(directory / "human_review_key.json") if (directory / "human_review_key.json").exists() else None
+    metrics, rows, report = analyze_data(manifest, events, review_doc, review_key)
     write_json(directory / "checks_and_judgments.json", rows)
     write_json(directory / "metrics.json", metrics)
-    write_report(directory / "REPORT.md", metrics, rows)
+    Path(directory / "REPORT.md").write_text(report, encoding="utf-8")
     return metrics
-
-
-def write_report(path, metrics, rows):
-    interval = metrics["paired_comparison"]
-    lines = ["# Regression report", "", f"**Recommendation: {metrics['recommendation']}.**", ""]
-    lines += ["- " + r for r in metrics["decision_reasons"]]
-    if not metrics["decision_reasons"]:
-        lines.append("Declared gates passed on this small selected sample. Confirm the critical examples manually and use a monitored rollout; this is not proof of production-wide safety.")
-    lines += ["", "## Comparison", "", "Combined rate uses all planned outputs as its denominator; operationally missing outputs remain separately counted, not semantic failures.", "",
-              "| Version | Planned | Generated | Judged | Deterministic passes/generated | Semantic passes/judged | Combined passes/planned | Critical outputs/judged |",
-              "|---|---:|---:|---:|---:|---:|---:|---:|"]
-    for v, m in metrics["versions"].items():
-        lines.append(f"| {v} | {m['planned']} | {m['generated']} | {m['judged']} | {m['deterministic_passes']}/{m['generated']} | {m['semantic_passes']}/{m['judged']} | {m['combined_passes']}/{m['planned']} | {m['critical_outputs']}/{m['judged']} |")
-    lines += ["", f"Request attempts: {metrics['request_attempts']}; operational error attempts: {metrics['operational_error_attempts']}. Monetary cost is unknown; token usage, when supplied by the provider, is in metrics.json.", "",
-              "Mean dimension scores: " + str({v: m["mean_scores"] for v, m in metrics["versions"].items()}), "", "## Confidence and repeated runs", ""]
-    if interval:
-        lines.append(f"v2 minus v1 combined-pass difference: {interval['mean_v2_minus_v1']:+.3f}; 95% interval [{interval['ci95_low']:+.3f}, {interval['ci95_high']:+.3f}], over {interval['paired_cases']} fully evaluated paired cases. Method: {interval['method']}, {interval['iterations']} draws, seed {interval['seed']}.")
-    else:
-        lines.append("No complete paired cases; no comparison interval is available.")
-    variable = {v: sum(x["variable_across_repeats"][v] for x in metrics["per_case"]) for v in ("v1", "v2")}
-    lines += [f"Cases whose combined pass/fail changed across repeats: {variable}.", "", "## Judge validation", "",
-              "Calibration: " + str(metrics["human"]["calibration"]), "", "Held-out validation: " + str(metrics["human"]["validation"]), "",
-              f"Human-review status: {metrics['human']['status']}. Agreement denominators include only labeled outputs with a valid judge response. Kappa is undefined when agreement marginals are degenerate.", "",
-              f"Judge/summariser share endpoint and model: {metrics['same_model_and_endpoint']}. Shared model biases can inflate apparent agreement; blinding does not remove them.", "", "## Evidence examples", ""]
-    examples = sorted(metrics["per_case"], key=lambda x: x["delta"])
-    selected = (examples[:1] + examples[-1:]) if examples else []
-    seen = set()
-    for case in selected:
-        if case["case_id"] in seen:
-            continue
-        seen.add(case["case_id"])
-        lines.append(f"Case {case['case_id']}: v1 rate {case['rates']['v1']:.3f}, v2 {case['rates']['v2']:.3f}.")
-        for v in ("v1", "v2"):
-            row = next(x for x in rows if x["case_id"] == case["case_id"] and x["version"] == v)
-            # Escape syntax so source-controlled strings render as evidence, not active Markdown.
-            import json
-            def escaped(value):
-                value = html.escape(json.dumps(value, ensure_ascii=False))
-                for char in "\\`*_[]()":
-                    value = value.replace(char, "\\" + char)
-                return value
-            lines += ["", f"- {v}, job {row['job_id']}: " + escaped(row["summary"]),
-                      "  Judge reasons: " + escaped(row["judgment"]["reasons"])]
-    if not selected:
-        lines.append("No evaluated examples available. Do not substitute fixture summaries.")
-    lines += ["", "## Limits and next steps", "", "This purposive set is not a random sample of production traffic. Repeats share conversations; intervals resample whole cases and cannot repair selection bias. Small risk slices and human samples limit confidence. No observed critical error does not establish zero risk. Inspect per-case and risk-slice evidence in metrics.json and disagreements under human.disagreements. Complete missing data/review and investigate critical errors before reconsidering release.", ""]
-    Path(path).write_text("\n".join(lines), encoding="utf-8")

@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: es-magico-eval-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: LLM_MODEL
+        value: openai/gpt-oss-20b
+      - key: LLM_API_KEY
+        sync: false
+      - key: JUDGE_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: JUDGE_MODEL
+        value: openai/gpt-oss-120b
+      - key: JUDGE_API_KEY
+        sync: false
+      - key: APP_ACCESS_TOKEN
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: RATE_LIMIT_MIN_DELAY_SECONDS
+        value: "0.0"
+      # Optional: add DATABASE_URL (e.g., Neon/Supabase/Render Postgres) if you want
+      # saved runs to persist across Render restarts. Without it, SQLite works out of the box.

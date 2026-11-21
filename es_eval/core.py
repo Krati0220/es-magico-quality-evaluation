@@ -6,6 +6,65 @@ from pathlib import Path
 
 DIMENSIONS = ("faithfulness", "completeness", "usefulness")
 
+# Approximate self-serve USD pricing per 1M tokens (input, output) for common models.
+# Unknown/local models return None rather than guessing.
+MODEL_PRICING_USD_PER_1M = {
+    "openai/gpt-oss-20b": (0.075, 0.30),
+    "openai/gpt-oss-120b": (0.15, 0.60),
+    "llama-3.1-8b-instant": (0.05, 0.08),
+    "llama-3.3-70b-versatile": (0.59, 0.79),
+    "qwen/qwen3-32b": (0.29, 0.59),
+    "gpt-4o-mini": (0.15, 0.60),
+    "gpt-4o": (2.50, 10.00),
+    "gpt-4.1-mini": (0.40, 1.60),
+    "gpt-4.1": (2.00, 8.00),
+    "gemini-2.5-flash": (0.15, 0.60),
+    "gemini-2.5-pro": (1.25, 10.00),
+}
+
+
+def estimate_cost_usd(model, usage):
+    """Estimate USD cost from provider token usage when model pricing is known."""
+    if not model or not isinstance(usage, dict):
+        return None
+    prompt_tokens = usage.get("prompt_tokens")
+    completion_tokens = usage.get("completion_tokens")
+    if not isinstance(prompt_tokens, (int, float)) or not isinstance(completion_tokens, (int, float)):
+        return None
+    normalized = model.lower().strip()
+    rates = MODEL_PRICING_USD_PER_1M.get(normalized)
+    if rates is None:
+        for prefix, candidate in MODEL_PRICING_USD_PER_1M.items():
+            if normalized.startswith(prefix):
+                rates = candidate
+                break
+    if rates is None:
+        return None
+    in_rate, out_rate = rates
+    return round((prompt_tokens * in_rate + completion_tokens * out_rate) / 1_000_000, 6)
+
+
+def extract_json_object(text):
+    """Parse JSON object from judge text, safely unwrapping <think> blocks or Markdown fences."""
+    if not isinstance(text, str):
+        raise ValueError("Judge output is not a string.")
+    cleaned = text.strip()
+    try:
+        return json.loads(cleaned)
+    except ValueError:
+        pass
+    # Strip reasoning blocks such as <think>...</think>
+    cleaned = re.sub(r"<think>.*?</think>", "", cleaned, flags=re.S | re.I).strip()
+    # Unwrap fenced JSON blocks
+    fence = re.search(r"```(?:json)?\s*(\{.*\})\s*```", cleaned, flags=re.S | re.I)
+    if fence:
+        return json.loads(fence.group(1))
+    # Fallback to outermost JSON object
+    start, end = cleaned.find("{"), cleaned.rfind("}")
+    if start != -1 and end > start:
+        return json.loads(cleaned[start:end + 1])
+    raise ValueError("No valid JSON object found in judge output.")
+
 
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -55,6 +114,9 @@ def load_inputs(config_path):
     if set(config["prompt_paths"]) != {"v1", "v2"}:
         raise ValueError("Exactly v1 and v2 prompts are required.")
     prompts = {k: (path.parent / v).read_text(encoding="utf-8") for k, v in config["prompt_paths"].items()}
+    extra_prompts = {k: (path.parent / v).read_text(encoding="utf-8")
+                     for k, v in config.get("extra_prompt_paths", {}).items()
+                     if (path.parent / v).exists()}
     spec = (path.parent / config["spec_path"]).read_text(encoding="utf-8")
     judge = (path.parent / config["judge_prompt_path"]).read_text(encoding="utf-8")
     if not spec.strip() or not judge.strip() or any(not p.strip() for p in prompts.values()):
@@ -90,7 +152,10 @@ def load_inputs(config_path):
             raise ValueError(f"{key} must be between 0 and 1.")
     if not 1 <= release["minimum_human_validation_labels"] <= 20:
         raise ValueError("Human validation minimum must be between 1 and 20.")
-    return {"config": config, "cases": cases, "prompts": prompts, "spec": spec, "judge_prompt": judge}
+    result = {"config": config, "cases": cases, "prompts": prompts, "spec": spec, "judge_prompt": judge}
+    if extra_prompts:
+        result["extra_prompts"] = extra_prompts
+    return result
 
 
 def load_env_file(path):
@@ -100,6 +165,7 @@ def load_env_file(path):
     if not path.exists():
         return
     allowed = {prefix + suffix for prefix in ("LLM_", "JUDGE_") for suffix in ("BASE_URL", "MODEL", "API_KEY")}
+    studio_keys = {"DATABASE_URL", "APP_ACCESS_TOKEN", "CORS_ORIGINS", "RATE_LIMIT_MIN_DELAY_SECONDS"}
     for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         line = line.strip()
         if not line or line.startswith("#"):
@@ -108,11 +174,13 @@ def load_env_file(path):
             line = line[7:].strip()
         key, sep, value = line.partition("=")
         key, value = key.strip(), value.strip()
-        if not sep or key not in allowed:
+        if not sep or (key not in allowed and key not in studio_keys):
             raise ValueError(f"Invalid provider setting on env-file line {number}.")
+        if key not in allowed:
+            continue
         if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
             value = value[1:-1]
-        if value and not value.startswith(("REPLACE_", "YOUR_")):
+        if value and not value.startswith(("REPLACE_", "YOUR_", "gsk_YOUR_")):
             os.environ.setdefault(key, value)
 
 
@@ -150,7 +218,7 @@ def check_summary(summary, rules, case=None):
             match = re.search(r"(?:^|\n)\s*(?:[-*+]\s|\d+[.)]\s|#{1,6}\s|>\s)|\*\*|__|`|\[[^\]]+\]\(", stripped)
             add("format.no_markdown", match is None, match.group(0) if match else None, "plain sentences")
         if rules.get("no_headings"):
-            match = re.search(r"(?:^|[\r\n])\s*(?:issue|status|next[ -]step|summary|handoff(?: note)?)\s*:", stripped, re.I)
+            match = re.search(r"(?:^|[\r\n])\s*(?:issue|status|next[ -]step|summary|handoff(?: note)?|customer|resolution|action|overview)\s*:", stripped, re.I)
             add("format.no_headings", match is None, match.group(0) if match else None, "no heading labels")
     for name, observed in (("max_words", len(stripped.split())), ("max_chars", len(stripped))):
         limit = rules.get(name)

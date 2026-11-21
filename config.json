@@ -6,6 +6,9 @@
     "v1": "prompts/v1.txt",
     "v2": "prompts/v2.txt"
   },
+  "extra_prompt_paths": {
+    "v3": "prompts/v3.txt"
+  },
   "judge_prompt_path": "prompts/judge.txt",
   "case_count": 30,
   "repeats": 3,
@@ -13,9 +16,12 @@
   "temperature": 0.7,
   "judge_temperature": 0,
   "max_tokens": 600,
-  "judge_max_tokens": 1400,
+  "judge_max_tokens": 2400,
   "timeout_seconds": 60,
   "max_attempts": 3,
+  "judge_response_format": "json_object",
+  "judge_reasoning_effort": "low",
+  "rate_limit_min_delay_seconds": 0.0,
   "checks": {
     "format": "text",
     "max_words": 80,
@@ -25,7 +31,7 @@
     "no_markdown": true,
     "required_keys": [],
     "source_sensitive_spans": true,
-    "safety_signal_pattern": "\\b(?:safety|hazard|burn(?:ing|t)?|overheat(?:ing|ed)?|hot\\s+(?:casing|plug)|electrical\\s+(?:risk|damage|concern|issue)|fried)\\b|damag\\w*\\s+(?:an?\\s+|the\\s+)?extension\\s+board",
+    "safety_signal_pattern": "\\b(?:safety|hazard|burn(?:ing|t)?|overheat(?:ing|ed)?|hot\\s+(?:casing|plug)|electrical\\s+(?:risk|damage|concern|issue|shock)|fried|smok(?:e|ing)|spark(?:s|ing)?|melt(?:ed|ing)?|fire\\s+risk|short\\s+circuit)\\b|damag\\w*\\s+(?:an?\\s+|the\\s+)?extension\\s+board",
     "banned_patterns": [
       {
         "id": "email",
@@ -47,9 +53,9 @@
       },
       {
         "id": "profanity_insults",
-        "regex": "\\b(?:damn|fuck(?:ing)?|shit|bastard|useless)\\b|\\bf\\*+ing\\b|\\bgarbage\\s+service\\b",
+        "regex": "\\b(?:damn|fuck(?:ing)?|shit|bullshit|bastard|useless|moron|crap|bakwas|ghatiya|chutiya|bsdk)\\b|\\bf\\*+ing\\b|\\bgarbage\\s+service\\b",
         "severity": "error",
-        "rationale": "Neutral tone and no repeated profanity/insults. Small explicit lexicon; semantic judge covers other languages/paraphrases."
+        "rationale": "Neutral tone and no repeated profanity/insults. Covers common English and Hinglish/Hindi abuse terms; semantic judge covers other paraphrases."
       }
     ],
     "rationale": "Spec requires one short plain paragraph with no headings/markdown, no PII/insults, and clear safety issue. 80 Unicode-whitespace words is an evaluator assumption, allowing complex cases; v2 under-40 wording is not a product requirement. Identifying address fragments and card suffixes are conservatively excluded; source-aware checks supplement generic regexes."

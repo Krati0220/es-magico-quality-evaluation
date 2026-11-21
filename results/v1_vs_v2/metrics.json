@@ -1,0 +1,903 @@
+{
+  "run_fingerprint": "5360fa1d298469ae972838ec36704cfba762eda27063fde3f36cb5afa9e9a3e4",
+  "scope": "full",
+  "baseline_version": "v1",
+  "candidate_version": "v2",
+  "versions": {
+    "v1": {
+      "planned": 90,
+      "generated": 90,
+      "judged": 71,
+      "deterministic_passes": 3,
+      "semantic_passes": 18,
+      "combined_passes": 2,
+      "combined_rate_over_planned": 0.022222222222222223,
+      "critical_outputs": 34,
+      "deterministic_critical_outputs": 11,
+      "mean_scores": {
+        "faithfulness": 4.535211267605634,
+        "completeness": 4.873239436619718,
+        "usefulness": 3.380281690140845
+      }
+    },
+    "v2": {
+      "planned": 90,
+      "generated": 90,
+      "judged": 67,
+      "deterministic_passes": 0,
+      "semantic_passes": 19,
+      "combined_passes": 0,
+      "combined_rate_over_planned": 0.0,
+      "critical_outputs": 38,
+      "deterministic_critical_outputs": 6,
+      "mean_scores": {
+        "faithfulness": 4.074626865671642,
+        "completeness": 4.447761194029851,
+        "usefulness": 3.626865671641791
+      }
+    }
+  },
+  "paired_comparison": {
+    "paired_cases": 3,
+    "mean_v2_minus_v1": -0.1111111111111111,
+    "ci95_low": -0.3333333333333333,
+    "ci95_high": 0,
+    "method": "paired conversation-level percentile bootstrap",
+    "iterations": 2000,
+    "seed": 73
+  },
+  "per_case": [
+    {
+      "case_id": "T06",
+      "tags": [
+        "multilingual",
+        "hinglish",
+        "disputed_facts",
+        "replacement"
+      ],
+      "rates": {
+        "v1": 0.3333333333333333,
+        "v2": 0
+      },
+      "delta": -0.3333333333333333,
+      "variable_across_repeats": {
+        "v1": true,
+        "v2": false
+      }
+    },
+    {
+      "case_id": "T14",
+      "tags": [
+        "multiple_issues",
+        "subscription",
+        "invoice",
+        "technical"
+      ],
+      "rates": {
+        "v1": 0,
+        "v2": 0
+      },
+      "delta": 0,
+      "variable_across_repeats": {
+        "v1": false,
+        "v2": false
+      }
+    },
+    {
+      "case_id": "T17",
+      "tags": [
+        "long_thread",
+        "corrected_schedule",
+        "warranty",
+        "source_inconsistency"
+      ],
+      "rates": {
+        "v1": 0,
+        "v2": 0
+      },
+      "delta": 0,
+      "variable_across_repeats": {
+        "v1": false,
+        "v2": false
+      }
+    }
+  ],
+  "risk_slices": {
+    "address": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "amount": {
+      "v1": {
+        "n": 12,
+        "combined_passes": 1
+      },
+      "v2": {
+        "n": 12,
+        "combined_passes": 0
+      }
+    },
+    "arithmetic": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "attachments_unavailable": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "attribution": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "bot_only": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "callback": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "card_suffix": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "closed": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "conditional_action": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "corrected_decision": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "corrected_schedule": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "credential_workflow": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "dates": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "deadline": {
+      "v1": {
+        "n": 9,
+        "combined_passes": 1
+      },
+      "v2": {
+        "n": 9,
+        "combined_passes": 0
+      }
+    },
+    "declined_offer": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "deletion_request": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "disputed_facts": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 1
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "email": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "email_channel": {
+      "v1": {
+        "n": 9,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 9,
+        "combined_passes": 0
+      }
+    },
+    "emoji": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "erroneous_refund": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "error_code": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "escalation": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "handoff": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "hindi": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "hinglish": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 1
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "identifier": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "identity_verification": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "implausible_source_promise": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "internal_note": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "invoice": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "long_thread": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "minimal_input": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "missing_context": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "multilingual": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 1
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "multiple_issues": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "multiple_shipments": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "negation": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "noise": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "otp": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "partial_return": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "pending_apology": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "pending_customer": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "phone": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "pickup": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "policy_denial": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "privacy": {
+      "v1": {
+        "n": 21,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 21,
+        "combined_passes": 0
+      }
+    },
+    "profanity": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "prompt_injection": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "quantities": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "quoted_history": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "refund": {
+      "v1": {
+        "n": 15,
+        "combined_passes": 1
+      },
+      "v2": {
+        "n": 15,
+        "combined_passes": 0
+      }
+    },
+    "replacement": {
+      "v1": {
+        "n": 12,
+        "combined_passes": 1
+      },
+      "v2": {
+        "n": 12,
+        "combined_passes": 0
+      }
+    },
+    "resolved": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "retention_exception": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "safety": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "signature_noise": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "source_inconsistency": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "subscription": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "supervisor": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "technical": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "third_party": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "tracking": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "transcription_noise": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "troubleshooting": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "typos": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "uncertain_commitment": {
+      "v1": {
+        "n": 6,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 6,
+        "combined_passes": 0
+      }
+    },
+    "unresolved": {
+      "v1": {
+        "n": 9,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 9,
+        "combined_passes": 0
+      }
+    },
+    "urgent": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "voice_channel": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    },
+    "warranty": {
+      "v1": {
+        "n": 3,
+        "combined_passes": 0
+      },
+      "v2": {
+        "n": 3,
+        "combined_passes": 0
+      }
+    }
+  },
+  "human": {
+    "status": "pending",
+    "completed_labels": {
+      "calibration": 0,
+      "validation": 0
+    },
+    "sample_coverage": [],
+    "disagreements": [],
+    "calibration": {
+      "n": 0,
+      "confusion_matrix": {
+        "both_pass": 0,
+        "both_fail": 0,
+        "false_pass": 0,
+        "false_fail": 0
+      },
+      "exact_agreement": null,
+      "kappa": null,
+      "critical_errors_missed": 0,
+      "mean_absolute_error": {
+        "faithfulness": null,
+        "completeness": null,
+        "usefulness": null
+      }
+    },
+    "validation": {
+      "n": 0,
+      "confusion_matrix": {
+        "both_pass": 0,
+        "both_fail": 0,
+        "false_pass": 0,
+        "false_fail": 0
+      },
+      "exact_agreement": null,
+      "kappa": null,
+      "critical_errors_missed": 0,
+      "mean_absolute_error": {
+        "faithfulness": null,
+        "completeness": null,
+        "usefulness": null
+      }
+    }
+  },
+  "operational_error_attempts": 28,
+  "request_attempts": 346,
+  "reported_usage_all_attempts": {
+    "queue_time": 90.192613575,
+    "prompt_tokens": 224907,
+    "prompt_time": 16.641036903,
+    "completion_tokens": 115231,
+    "completion_time": 211.21548507700007,
+    "total_tokens": 340138,
+    "total_time": 227.85652198000002
+  },
+  "cost_usd": 0.085726,
+  "recommendation": "HOLD",
+  "decision_reasons": [
+    "Full 30-case repeated comparison is incomplete.",
+    "Generation or judge results are missing.",
+    "Observed critical errors in v2.",
+    "Deterministic privacy/safety critical checks failed in v2.",
+    "v2 does not meet the declared combined-pass threshold.",
+    "Evidence does not establish the declared noninferiority margin.",
+    "Genuine human calibration/held-out validation is incomplete."
+  ],
+  "models": {
+    "generate": {
+      "base_url": "https://api.groq.com/openai/v1",
+      "model": "openai/gpt-oss-20b"
+    },
+    "judge": {
+      "base_url": "https://api.groq.com/openai/v1",
+      "model": "openai/gpt-oss-120b"
+    }
+  },
+  "same_model_and_endpoint": false
+}

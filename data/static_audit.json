@@ -24,7 +24,7 @@
   ],
   "golden_cases": 30,
   "other_cases": 15,
-  "input_fingerprint": "0697917caccab332accf6fac7a88172a5c20506a98da8571a1766609c7b09653",
+  "input_fingerprint": "9a20ab90b435e52ee064bfca855ddaddc6157256c66db69b75c5a1c93bebbab4",
   "planned_generation_calls": 180,
   "planned_judge_calls": 180,
   "findings": [

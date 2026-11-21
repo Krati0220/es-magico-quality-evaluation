@@ -1,12 +1,31 @@
 # Es Magico — Support handoff regression evaluation
 
-**Status:** starter integrated; 30 golden cases curated; offline checks verified. Live model outputs and genuine human judge-validation labels are still pending. This is not a completed empirical comparison.
+This repository evaluates the supplied `v1` (production) and `v2` (proposed) support-handoff prompts — plus a spec-compliant `v3` candidate — against the verbatim product spec. It includes:
+1. **Zero-dependency Python evaluation CLI (`es_eval/`)** with deterministic format/length/PII/safety/tone checks, a blinded semantic LLM judge, paired conversation-level bootstrap analysis, and a case-disjoint blinded human-review workflow.
+2. **Interactive Web Studio (`backend/` FastAPI + `frontend/` React/Vite)** ready for **Render + Vercel** deployment, providing a Golden Set Explorer, Live Playground, background Evaluation Run Dashboard, Blinded Human Review UI, and one-click deliverable export.
 
-This small Python CLI evaluates the supplied v1/v2 prompts against the actual product spec. It saves repeated generations, applies deterministic checks, runs a blinded semantic judge, exports human review, and generates an evidence-based regression report. No dashboard, deployment, or paid service is required.
+## Quick start (Web Studio)
 
-## Start here
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full Render + Vercel setup. Locally:
 
-Python 3.10+ and the standard library are sufficient; verified with Python 3.14.6. From this folder:
+```sh
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r backend/requirements.txt
+cp backend/.env.example .env   # add your Groq / OpenAI-compatible API key
+uvicorn backend.app:app --reload --port 8000
+```
+
+In a second terminal:
+
+```sh
+cd frontend && npm install && npm run dev
+```
+
+Open `http://localhost:5173`. Any saved runs in `results/` load automatically into the Studio.
+
+## Quick start (CLI only)
+
+Python 3.10+ and the standard library are sufficient for the core CLI. From this folder:
 
 ```sh
 python3 -m es_eval validate
