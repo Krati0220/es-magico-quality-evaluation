@@ -1,0 +1,352 @@
+[
+  {
+    "id": "T13",
+    "channel": "email",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "Dear Sir/Madam, we are a leading SEO agency and can get your website to page one of Google in 30 days. Reply for a free audit. Limited offer!!"
+      },
+      {
+        "role": "agent",
+        "text": "This looks unrelated to Lumo support. Closing as spam."
+      }
+    ]
+  },
+  {
+    "id": "T18",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "I need my replacement bulb pack delivered before 21 Nov, it's for my sister's wedding on the 22nd."
+      },
+      {
+        "role": "agent",
+        "text": "I'll do my best. Which order?"
+      },
+      {
+        "role": "customer",
+        "text": "LM-52004. Anyway, how's your day going? Been crazy hot here."
+      },
+      {
+        "role": "agent",
+        "text": "Ha, busy but good. Let me look."
+      },
+      {
+        "role": "customer",
+        "text": "Take your time. The wedding is in Jaipur, huge family, you know how it is."
+      },
+      {
+        "role": "agent",
+        "text": "Sounds lovely! The pack is currently in Delhi and can reach Jaipur by 20 Nov."
+      },
+      {
+        "role": "customer",
+        "text": "Amazing. Thank you so much!"
+      }
+    ]
+  },
+  {
+    "id": "T19",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "I want to cancel Lumo Care."
+      },
+      {
+        "role": "agent",
+        "text": "Sorry to see you go. Can I ask why?"
+      },
+      {
+        "role": "customer",
+        "text": "Too expensive."
+      },
+      {
+        "role": "agent",
+        "text": "I can offer 3 months at 50% off if you stay."
+      },
+      {
+        "role": "customer",
+        "text": "No thanks, cancel it."
+      },
+      {
+        "role": "agent",
+        "text": "Done. Your subscription will end on 1 Dec and you won't be charged again."
+      }
+    ]
+  },
+  {
+    "id": "T20",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "What's the difference between monthly and yearly Lumo Care?"
+      },
+      {
+        "role": "agent",
+        "text": "Monthly is ₹149 per month, yearly is ₹1,499 per year, which works out to about ₹125 a month."
+      },
+      {
+        "role": "customer",
+        "text": "And does either include accidental damage?"
+      },
+      {
+        "role": "agent",
+        "text": "Only the yearly plan includes accidental damage cover, up to ₹5,000 per claim."
+      },
+      {
+        "role": "customer",
+        "text": "I'll think about it and come back."
+      }
+    ]
+  },
+  {
+    "id": "T21",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "Just wanted to say the new hub update is fantastic, the automations finally work."
+      },
+      {
+        "role": "agent",
+        "text": "That's great to hear, thank you for the feedback!"
+      },
+      {
+        "role": "customer",
+        "text": "Keep it up!"
+      }
+    ]
+  },
+  {
+    "id": "T22",
+    "channel": "email",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "This is my third complaint about LM-45118. If this is not resolved in 7 days I will file a case in consumer court and post everything online."
+      },
+      {
+        "role": "agent",
+        "text": "I'm sorry for the repeated trouble. I've escalated your case to our compliance team, who will contact you within 48 hours."
+      },
+      {
+        "role": "customer",
+        "text": "We'll see."
+      }
+    ]
+  },
+  {
+    "id": "T24",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "deliveri date for LM-51877??"
+      },
+      {
+        "role": "agent",
+        "text": "Expected 19 Nov."
+      },
+      {
+        "role": "customer",
+        "text": "kal tak aa jayega na? bahut zaroori hai"
+      },
+      {
+        "role": "agent",
+        "text": "Haan, courier ne bola hai kal shaam tak."
+      },
+      {
+        "role": "customer",
+        "text": "Ok bhai thanks"
+      }
+    ]
+  },
+  {
+    "id": "T31",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "Can you change the date on my invoice to 1 Oct? I need it for my tax filing."
+      },
+      {
+        "role": "agent",
+        "text": "I'm sorry, invoices can't be backdated, they carry the date of the sale."
+      },
+      {
+        "role": "customer",
+        "text": "Even for a small change?"
+      },
+      {
+        "role": "agent",
+        "text": "Even then. If you need a different document for filing, finance can provide a payment confirmation letter."
+      },
+      {
+        "role": "customer",
+        "text": "Ok, please do that."
+      }
+    ]
+  },
+  {
+    "id": "T33",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "hey 👋 got the new plug 🔌 but app says offline 😭"
+      },
+      {
+        "role": "agent",
+        "text": "Hi! 😊 Let's fix that. Have you added it to the app yet?"
+      },
+      {
+        "role": "customer",
+        "text": "yes!! pressed + and everything 🙌"
+      },
+      {
+        "role": "agent",
+        "text": "Please hold the button for 5 seconds until the light blinks, then add it again."
+      },
+      {
+        "role": "customer",
+        "text": "omg it works!!! thank you 🎉🎉"
+      }
+    ]
+  },
+  {
+    "id": "T36",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "My replacement unit shipped. Tracking number?"
+      },
+      {
+        "role": "agent",
+        "text": "Your replacement for LM-51620 shipped today, tracking number LMT-7782-991-IN, expected in 3 days."
+      },
+      {
+        "role": "customer",
+        "text": "Thanks!"
+      }
+    ]
+  },
+  {
+    "id": "T40",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "I need the plug delivered by 6pm tomorrow, my party is tomorrow evening. Order LM-52330."
+      },
+      {
+        "role": "agent",
+        "text": "Standard delivery is tomorrow by 8pm, which I can't guarantee earlier. Express delivery costs ₹199 extra and is guaranteed by 5pm."
+      },
+      {
+        "role": "customer",
+        "text": "Ok, I'll take express."
+      },
+      {
+        "role": "agent",
+        "text": "Done, I've upgraded it and charged ₹199."
+      }
+    ]
+  },
+  {
+    "id": "T41",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "you people are useless, I'll destroy your Google reviews if you don't fix this"
+      },
+      {
+        "role": "agent",
+        "text": "I'm sorry you feel this way. How can I help?"
+      },
+      {
+        "role": "customer",
+        "text": "Lamp stopped working after a week. Order LM-48199."
+      },
+      {
+        "role": "agent",
+        "text": "I'll arrange a replacement."
+      },
+      {
+        "role": "customer",
+        "text": "Finally. Fine."
+      }
+    ]
+  },
+  {
+    "id": "T43",
+    "channel": "email",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "Please update our billing details. GSTIN 27AAAAA0000A1Z5, company Blue Orchid Interiors LLP, for future invoices."
+      },
+      {
+        "role": "agent",
+        "text": "Updated. All future invoices will carry that GSTIN. Past invoices cannot be changed."
+      },
+      {
+        "role": "customer",
+        "text": "Understood, thanks."
+      }
+    ]
+  },
+  {
+    "id": "T44",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "My plug is offline again."
+      },
+      {
+        "role": "agent",
+        "text": "Sorry. Can you restart it?"
+      },
+      {
+        "role": "customer",
+        "text": "I did that already last time, and the time before. This is the third time I'm asking."
+      },
+      {
+        "role": "agent",
+        "text": "I see the earlier chats. Since this keeps happening I'll replace it."
+      },
+      {
+        "role": "customer",
+        "text": "Please. I don't want to explain this again."
+      },
+      {
+        "role": "agent",
+        "text": "No need. Replacement ordered, it will arrive in 4 days and I've noted the history on your account."
+      }
+    ]
+  },
+  {
+    "id": "T45",
+    "channel": "chat",
+    "messages": [
+      {
+        "role": "customer",
+        "text": "Can you tell me if the Lumo hub works with Alexa?"
+      },
+      {
+        "role": "agent",
+        "text": "Yes, it supports Alexa and Google Home. Setup steps are in the app under Integrations."
+      },
+      {
+        "role": "customer",
+        "text": "Great, thanks!"
+      }
+    ]
+  }
+]

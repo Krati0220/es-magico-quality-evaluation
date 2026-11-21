@@ -1,0 +1,49 @@
+{
+  "evidence_type": "static_inspection_not_model_evaluation",
+  "starter_hashes_verified": [
+    {
+      "path": "README.md",
+      "sha256": "b6cc1a346915ee44aaeec0dfe87848bbdac0327d12f703a319074fb877f02234"
+    },
+    {
+      "path": "summarise.py",
+      "sha256": "71127b7994e156259955e44d90625bf4c33df90f0b9a0d981619c29cf8a53742"
+    },
+    {
+      "path": "prompts/v1.txt",
+      "sha256": "db14f6160db04437a4cc5fa754de87d26c67708439b10deba67606fbf5ea8a05"
+    },
+    {
+      "path": "prompts/v2.txt",
+      "sha256": "06e583ffcb79d30ad12df9b2981336c618fb18ca1d6d720480ed662c42941d90"
+    },
+    {
+      "path": "data/threads.jsonl",
+      "sha256": "29ed09571e771eba7ac19fb82a2b44ab8a57b1d34e953e25ced9e3c7080d823b"
+    }
+  ],
+  "golden_cases": 30,
+  "other_cases": 15,
+  "input_fingerprint": "0697917caccab332accf6fac7a88172a5c20506a98da8571a1766609c7b09653",
+  "planned_generation_calls": 180,
+  "planned_judge_calls": 180,
+  "findings": [
+    {
+      "kind": "static_prompt_spec_conflict",
+      "version": "v2",
+      "product_spec": "A single short paragraph. No lists, headings or markdown.",
+      "prompt_lines": [
+        "- Use this layout, one line each:",
+        "  Issue: ...",
+        "  Status: ...",
+        "  Next step: ..."
+      ],
+      "conclusion": "v2 explicitly instructs a layout contrary to the current product spec. This is a static blocker, not an observed LLM failure rate."
+    }
+  ],
+  "notes": [
+    "Both v1 and v2 omit explicit product privacy/safety/tone safeguards; actual behavioral differences are unmeasured.",
+    "v2 under-40-word aim is a prompt preference; evaluator limit is 80 words as a documented product-spec gap assumption."
+  ],
+  "recommendation": "HOLD v2 as written; fix the prompt/spec conflict before release and complete empirical comparison and genuine judge validation."
+}

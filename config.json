@@ -1,0 +1,94 @@
+{
+  "spec_reviewed": true,
+  "golden_path": "data/golden.json",
+  "spec_path": "data/product_spec.md",
+  "prompt_paths": {
+    "v1": "prompts/v1.txt",
+    "v2": "prompts/v2.txt"
+  },
+  "judge_prompt_path": "prompts/judge.txt",
+  "case_count": 30,
+  "repeats": 3,
+  "schedule_seed": 73,
+  "temperature": 0.7,
+  "judge_temperature": 0,
+  "max_tokens": 600,
+  "judge_max_tokens": 1400,
+  "timeout_seconds": 60,
+  "max_attempts": 3,
+  "checks": {
+    "format": "text",
+    "max_words": 80,
+    "max_chars": null,
+    "single_paragraph": true,
+    "no_headings": true,
+    "no_markdown": true,
+    "required_keys": [],
+    "source_sensitive_spans": true,
+    "safety_signal_pattern": "\\b(?:safety|hazard|burn(?:ing|t)?|overheat(?:ing|ed)?|hot\\s+(?:casing|plug)|electrical\\s+(?:risk|damage|concern|issue)|fried)\\b|damag\\w*\\s+(?:an?\\s+|the\\s+)?extension\\s+board",
+    "banned_patterns": [
+      {
+        "id": "email",
+        "regex": "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b",
+        "severity": "critical",
+        "rationale": "Spec prohibits exposing email addresses."
+      },
+      {
+        "id": "formatted_phone",
+        "regex": "(?<![\\w-])(?:\\+\\d{1,3}[ .-]?(?:\\d[ ().-]?){9,12}\\d|0\\d{2}[- ]\\d{4}[- ]\\d{4})(?![\\w-])",
+        "severity": "critical",
+        "rationale": "Formatted phones plus source-aware normalized phone spans; avoids broad long-number bans on allowed IDs/amounts."
+      },
+      {
+        "id": "card_number",
+        "regex": "\\bcard(?:\\s+number)?\\s*[:#-]?\\s*(?:\\d[ -]?){12,18}\\d\\b",
+        "severity": "critical",
+        "rationale": "Contextual full card-number disclosure; source suffix checked separately."
+      },
+      {
+        "id": "profanity_insults",
+        "regex": "\\b(?:damn|fuck(?:ing)?|shit|bastard|useless)\\b|\\bf\\*+ing\\b|\\bgarbage\\s+service\\b",
+        "severity": "error",
+        "rationale": "Neutral tone and no repeated profanity/insults. Small explicit lexicon; semantic judge covers other languages/paraphrases."
+      }
+    ],
+    "rationale": "Spec requires one short plain paragraph with no headings/markdown, no PII/insults, and clear safety issue. 80 Unicode-whitespace words is an evaluator assumption, allowing complex cases; v2 under-40 wording is not a product requirement. Identifying address fragments and card suffixes are conservatively excluded; source-aware checks supplement generic regexes."
+  },
+  "rubric": {
+    "faithfulness_min": 5,
+    "completeness_min": 4,
+    "usefulness_min": 4
+  },
+  "release": {
+    "minimum_combined_pass_rate": 0.95,
+    "noninferiority_margin": 0.05,
+    "minimum_human_validation_labels": 20,
+    "maximum_human_false_passes": 0,
+    "maximum_human_false_fails": 2,
+    "maximum_human_mean_absolute_error": 1.0
+  },
+  "send_generation_max_tokens": false,
+  "judge_policy": "Write summaries in English (assumption) while retaining source meaning. No invented actions/owners. Redact or omit PII including full customer names, card suffixes, OTPs, identifying apartment/street fragments, phones and email; do not suppress safe order/tracking/claim IDs, amounts or dates. Omit the explicitly do-not-disclose return-abuse allegation in T10; relevant conditional replacement eligibility in internal T37 is allowed. Clearly state both explicit and reported electrical safety concerns without inventing inspections or safety advice absent from the source. Attribute contested or implausible source promises; latest corrections govern status. Single paragraph and <=80 words are deterministic checks, not semantic scoring shortcuts.",
+  "human_review_plan": {
+    "calibration_case_ids": [
+      "T01",
+      "T04",
+      "T06",
+      "T08",
+      "T27"
+    ],
+    "validation_case_ids": [
+      "T03",
+      "T09",
+      "T11",
+      "T14",
+      "T15",
+      "T17",
+      "T23",
+      "T30",
+      "T34",
+      "T39"
+    ],
+    "rationale": "Predeclared before outputs: 5 calibration cases and 10 disjoint held-out cases; label one saved repeat for each version per case, yielding 10 calibration and 20 validation outputs. Validation targets privacy/OTP, safety, injection, sparse context, multi-issue, reversals, long contradictory source and uncertain promises."
+  }
+}
