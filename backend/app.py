@@ -138,11 +138,12 @@ app = FastAPI(
     description="Support handoff prompt regression evaluation, live playground, and blinded human review API.",
 )
 
-cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if o.strip()]
+cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
+use_wildcard = not cors_origins or "*" in cors_origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins if "*" not in cors_origins else ["*"],
-    allow_credentials=True,
+    allow_origins=["*"] if use_wildcard else cors_origins,
+    allow_credentials=not use_wildcard,
     allow_methods=["*"],
     allow_headers=["*"],
 )

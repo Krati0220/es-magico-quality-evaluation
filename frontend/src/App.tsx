@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, getStoredToken, setStoredToken } from './api';
+import { API_BASE, api, getStoredToken, setStoredToken } from './api';
 import { OverviewTab } from './components/OverviewTab';
 import { PlaygroundTab } from './components/PlaygroundTab';
 import { ReviewTab } from './components/ReviewTab';
@@ -37,8 +37,8 @@ export function App() {
       }
     } catch (err) {
       setError(
-        `Cannot reach backend API (${err instanceof Error ? err.message : String(err)}). ` +
-          'Start FastAPI locally (`uvicorn backend.app:app --reload`) or check VITE_API_URL.',
+        `Cannot reach backend API at ${API_BASE || window.location.origin} (${err instanceof Error ? err.message : String(err)}). ` +
+          'If Render is still finishing its initial deploy or waking from free-tier sleep (~30–50s), wait a moment and click Retry.',
       );
     }
   };

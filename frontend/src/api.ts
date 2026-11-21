@@ -7,7 +7,22 @@ import type {
   RunSummary,
 } from './types';
 
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+function resolveApiBase(): string {
+  let raw = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+  if (raw && !/^https?:\/\//i.test(raw)) {
+    raw = `https://${raw}`;
+  }
+  const isRemoteHost =
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1';
+  if (isRemoteHost && (!raw || raw.includes('localhost') || raw.includes('127.0.0.1'))) {
+    return 'https://es-magico-quality-evaluation.onrender.com';
+  }
+  return raw;
+}
+
+export const API_BASE = resolveApiBase();
 
 let accessToken = localStorage.getItem('es_eval_token') || '';
 
@@ -26,7 +41,9 @@ export function setStoredToken(token: string): void {
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
-  headers.set('Content-Type', 'application/json');
+  if (init.body) {
+    headers.set('Content-Type', 'application/json');
+  }
   if (accessToken) {
     headers.set('X-Access-Token', accessToken);
   }
